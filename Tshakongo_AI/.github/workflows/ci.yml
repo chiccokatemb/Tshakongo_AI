@@ -1,0 +1,33 @@
+
+name: CI
+
+on:
+  push:
+    branches: [ principal, main ]
+  pull_request:
+    branches: [ principal, main ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || true
+      - name: Static checks
+        run: |
+          python -m py_compile $(git ls-files '*.py') || true
+      - name: Basic smoke test
+        run: |
+          python - <<'PY'
+          import yaml, os
+          cfg = yaml.safe_load(open('app/config.yaml'))
+          assert 'speech' in cfg and 'mqtt' in cfg
+          print("Config OK")
+          PY

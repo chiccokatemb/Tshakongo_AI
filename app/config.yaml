@@ -1,0 +1,68 @@
+
+project:
+  name: "Tshakongo_AI"
+  repo_url: "https://github.com/chiccokatemb/Tshakongo_AI.git"
+  auto_update: true
+
+security:
+  fs_allowlist:
+    - "/home/pi/tshakongo"
+    - "/home/pi/tshakongo/logs"
+  require_voice_confirm: ["delete","rm","remove","supprime","efface","format","unlock"]
+  admin_pin: "4321"
+
+speech:
+  wakeword: "tshakongo"
+  wakeword_sensitivity: 0.70
+  stt_model_url: "https://alphacephei.com/vosk/models/vosk-model-small-fr-0.22.zip"
+  stt_model_dir: "models/vosk-fr"
+  tts_voice: "fr"
+
+robot:
+  serial_arduino: "/dev/ttyACM0"
+  lidar_uart: "/dev/ttyUSB0"
+  lidar_baud: 230400
+  max_speed: 0.35
+  stop_dist: 0.35
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+
+mqtt:
+  broker: "127.0.0.1"
+  port: 1883
+  username: ""
+  password: ""
+  aliases:
+    lumiere_salon: "homeassistant/light/salon/set"
+    door_main: "homeassistant/lock/porte/set"
+    scene_night: "homeassistant/scene/night/set"
+    scene_party: "homeassistant/scene/party/set"
+
+dialogue:
+  use_tts: true
+  use_stt: false
+  use_ollama: false
+  ollama_model: "mistral"
+
+script_sandbox:
+  docker_image: "python:3.11-slim"
+  network: "none"
+  mem_limit: "256m"
+  cpus: "0.75"
+  timeout_sec: 25
+  enable_native_exec: false
+  root_dir: "/home/pi/tshakongo/scripts"
+
+neuro:
+  provider: "llama_cpp"
+  llama_server_url: "http://127.0.0.1:8081"
+  model: "tinyllama"
+  max_tokens: 128
+  temperature: 0.6
+  threads: 4
+  cache:
+    enabled: true
+    size: 64
+    similarity: 85
