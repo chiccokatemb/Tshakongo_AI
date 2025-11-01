@@ -1,0 +1,22 @@
+
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-release-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create release archive
+        run: |
+          zip -r Tshakongo_AI_${GITHUB_REF_NAME}.zip . -x "*.git*"
+      - name: Upload release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Tshakongo_AI_${{ github.ref_name }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

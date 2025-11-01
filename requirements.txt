@@ -1,0 +1,16 @@
+
+flask
+flask-socketio
+eventlet
+pyyaml
+sounddevice
+vosk
+pyserial
+paho-mqtt
+opencv-python
+requests
+Jinja2
+APScheduler
+rapidfuzz
+onnxruntime
+numpy
