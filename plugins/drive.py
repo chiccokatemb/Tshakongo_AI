@@ -10,4 +10,7 @@ class Drive:
         if self.enabled:
             self.ser.write((cmd.strip()+"\n").encode())
     def forward(self, speed:float=0.25): self._send(f"F:{speed:.2f}")
+    def back(self, speed:float=0.20): self._send(f"B:{speed:.2f}")
+    def left(self, speed:float=0.20): self._send(f"L:{speed:.2f}")
+    def right(self, speed:float=0.20): self._send(f"R:{speed:.2f}")
     def stop(self): self._send("S")

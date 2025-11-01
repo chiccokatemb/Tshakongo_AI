@@ -226,3 +226,14 @@ def api_neuro_test():
 
 if __name__ == "__main__":
     socketio.run(app, host=CFG["server"]["host"], port=CFG["server"]["port"])
+
+# Robot directions (test)
+@app.route("/api/robot/back", methods=["POST"])
+def api_robot_back():
+    drive.back(); return jsonify({"msg":"ok"})
+@app.route("/api/robot/left", methods=["POST"])
+def api_robot_left():
+    drive.left(); return jsonify({"msg":"ok"})
+@app.route("/api/robot/right", methods=["POST"])
+def api_robot_right():
+    drive.right(); return jsonify({"msg":"ok"})
