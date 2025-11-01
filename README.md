@@ -8,7 +8,6 @@
   <img alt="License" src="https://img.shields.io/badge/license-Proprietary-red">
 </p>
 
-
 # Tshakongo_AI — Option E (Complet)
 
 Assistant vocal **100% local** pour Raspberry Pi :
