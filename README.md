@@ -1,1 +1,11 @@
+<p align="left">
+  <a href="https://github.com/chiccokatemb/Tshakongo_AI/actions/workflows/ci.yml">
+    <img alt="CI" src="https://img.shields.io/github/actions/workflow/status/chiccokatemb/Tshakongo_AI/ci.yml?branch=principal&label=CI">
+  </a>
+  <a href="https://github.com/chiccokatemb/Tshakongo_AI/releases">
+    <img alt="Release" src="https://img.shields.io/github/v/release/chiccokatemb/Tshakongo_AI?display_name=tag&label=Release">
+  </a>
+  <img alt="License" src="https://img.shields.io/badge/license-Proprietary-red">
+</p>
+
 # Tshakongo_AI
