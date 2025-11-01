@@ -225,4 +225,58 @@ def api_neuro_test():
     txt = request.json.get("text","Bonjour ! Présente-toi en une phrase."); out = NEURO.answer(txt); return jsonify({"reply": out})
 
 if __name__ == "__main__":
+
+# -------- Vision config API (UI réglages) --------
+import json as _json
+from pathlib import Path as _Path
+
+_VCFG_PATH = _Path(__file__).with_name("vision_config.json")
+
+def _vcfg_read():
+    try:
+        return _json.loads(_VCFG_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {"score_th": 0.40, "iou_th": 0.45, "weapon_model":"", "dog_model":""}
+
+def _vcfg_write(cfg):
+    tmp = _VCFG_PATH.with_suffix(".tmp")
+    tmp.write_text(_json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(_VCFG_PATH)
+
+@app.route("/api/vision/config/get")
+def api_vision_get():
+    return jsonify(_vcfg_read())
+
+@app.route("/api/vision/config/set", methods=["POST"])
+def api_vision_set():
+    data = request.get_json(force=True) or {}
+    cfg = _vcfg_read()
+    for k in ("score_th","iou_th","weapon_model","dog_model"):
+        if k in data: cfg[k] = data[k]
+    _vcfg_write(cfg)
+    # Applique dynamiquement les seuils si disponibles
+    try:
+        if hasattr(VISION, "det_weapons") and VISION.det_weapons:
+            VISION.det_weapons.score_th = float(cfg.get("score_th", 0.4))
+            VISION.det_weapons.iou_th   = float(cfg.get("iou_th", 0.45))
+        if hasattr(VISION, "det_dogs") and VISION.det_dogs:
+            VISION.det_dogs.score_th = float(cfg.get("score_th", 0.4))
+            VISION.det_dogs.iou_th   = float(cfg.get("iou_th", 0.45))
+    except Exception:
+        pass
+    return jsonify({"ok": True, "config": cfg})
+
+# Snapshot test
+@app.route("/api/vision/testshot", methods=["POST"])
+def api_vision_testshot():
+    frame = cam.get_frame()
+    if not frame:
+        return jsonify({"ok": False, "msg": "no frame"})
+    out = os.path.join("/home/pi/tshakongo/alerts", f"test_{int(time.time())}.jpg")
+    try:
+        with open(out, "wb") as f: f.write(frame)
+        return jsonify({"ok": True, "path": out})
+    except Exception as e:
+        return jsonify({"ok": False, "msg": str(e)})
+if __name__ == "__main__":
     socketio.run(app, host=CFG["server"]["host"], port=CFG["server"]["port"])

@@ -108,3 +108,42 @@
   </script>
 </body>
 </html>
+
+  <div class="card">
+    <h3>⚙️ Vision Sécurité — Réglages</h3>
+    <div>score_th: <input id="score_th" type="number" step="0.01" min="0" max="1" value="0.4" /></div>
+    <div>iou_th: <input id="iou_th" type="number" step="0.01" min="0" max="1" value="0.45" /></div>
+    <div>weapon.onnx: <input id="weapon_model" placeholder="/home/pi/models/weapon.onnx" style="width:420px"/></div>
+    <div>dog.onnx: <input id="dog_model" placeholder="/home/pi/models/dog.onnx" style="width:420px"/></div>
+    <button onclick="visionLoad()">Charger</button>
+    <button onclick="visionSave()">Enregistrer</button>
+    <button onclick="visionShot()">Test snapshot</button>
+    <pre id="visioncfg"></pre>
+  </div>
+
+  <script>
+    async function visionLoad(){
+      const r = await fetch("/api/vision/config/get");
+      const j = await r.json();
+      for(const k of ["score_th","iou_th","weapon_model","dog_model"]){
+        if(document.getElementById(k)) document.getElementById(k).value = j[k] ?? "";
+      }
+      document.getElementById("visioncfg").textContent = JSON.stringify(j, null, 2);
+    }
+    async function visionSave(){
+      const payload = {
+        score_th: parseFloat(document.getElementById("score_th").value),
+        iou_th: parseFloat(document.getElementById("iou_th").value),
+        weapon_model: document.getElementById("weapon_model").value,
+        dog_model: document.getElementById("dog_model").value
+      };
+      const r = await fetch("/api/vision/config/set", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)});
+      const j = await r.json(); document.getElementById("visioncfg").textContent = JSON.stringify(j, null, 2);
+    }
+    async function visionShot(){
+      const r = await fetch("/api/vision/testshot", {method:"POST"});
+      document.getElementById("visioncfg").textContent = await r.text();
+    }
+    // auto load on page open
+    visionLoad().catch(()=>{});
+  </script>

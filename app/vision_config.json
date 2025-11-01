@@ -1,0 +1,6 @@
+{
+  "score_th": 0.40,
+  "iou_th": 0.45,
+  "weapon_model": "",
+  "dog_model": ""
+}
