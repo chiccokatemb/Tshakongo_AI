@@ -1,0 +1,112 @@
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Tshakongo_AI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body{font-family:system-ui,Arial;margin:24px;background:#0b1320;color:#e7ecf3}
+    .card{background:#121b2e;padding:16px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.25);margin-bottom:16px}
+    button{padding:10px 16px;border-radius:10px;border:0;cursor:pointer}
+    .row{display:flex;gap:16px;flex-wrap:wrap}
+    input,pre{background:#0b1320;color:#e7ecf3;border-radius:8px;border:1px solid #223}
+    input{padding:8px;width:100%}
+    pre{white-space:pre-wrap;padding:10px}
+  </style>
+</head>
+<body>
+  <h1>🤖 Tshakongo_AI — Dashboard</h1>
+  <p>Hotword: <b>tshakongo</b></p>
+
+  <div class="row">
+    <div class="card">
+    <div class="card">
+    <div class="card"><h3>🛞 Contrôles avancés</h3><button onclick="fetch(/api/robot/left,{method:'POST'});">Gauche</button> <button onclick="fetch(/api/robot/back,{method:'POST'});">Arrière</button> <button onclick="fetch(/api/robot/right,{method:'POST'});">Droite</button></div>
+      <h3>🎥 Caméra</h3>
+      <img src="/video_feed" width="480" />
+    </div>
+    <div class="card">
+      <h3>🛞 Robot</h3>
+      <button onclick="fetch('/api/robot/forward',{method:'POST'});">Avancer</button>
+      <button onclick="fetch('/api/robot/stop',{method:'POST'});">Stop</button>
+      <p id="lidar">LiDAR…</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>🧭 Navigation</h3>
+    <button onclick="navOn()">Patrouille autonome</button>
+    <button onclick="navOff()">Arrêt patrouille</button>
+    <pre id="navout"></pre>
+  </div>
+
+  <div class="card">
+    <h3>👁️ Vision (visages + sécurité)</h3>
+    <button onclick="visionToggle()">Activer/désactiver vision</button>
+    <pre id="visionout"></pre>
+  </div>
+
+  <div class="card">
+    <h3>🎙️ Voix</h3>
+    <button onclick="voiceOn()">Démarrer</button>
+    <button onclick="voiceOff()">Arrêter</button>
+    <pre id="voiceout"></pre>
+  </div>
+
+  <div class="card">
+    <h3>🗣️ Dialogue</h3>
+    <input id="dlg" placeholder="Tape une phrase (ex: allume la lumière du salon)" />
+    <button onclick="talk()">Envoyer</button>
+    <pre id="dlgout"></pre>
+  </div>
+
+  <div class="card">
+    <h3>📜 Scripts (Docker)</h3>
+    <button onclick="createScript()">Créer demo.py</button>
+    <button onclick="runScript()">Exécuter demo.py</button>
+    <button onclick="listScripts()">Lister</button>
+    <pre id="scriptout"></pre>
+  </div>
+
+  <div class="card">
+    <h3>⏱️ Planification</h3>
+    <button onclick="addEvery()">Exécuter demo.py toutes 5 minutes</button>
+    <button onclick="listJobs()">Lister</button>
+    <button onclick="remJob()">Supprimer job1</button>
+    <pre id="jobsout"></pre>
+  </div>
+
+  <div class="card">
+    <h3>🔁 Mise à jour</h3>
+    <button onclick="update()">Vérifier & Mettre à jour</button>
+    <pre id="updout"></pre>
+  </div>
+
+  <div class="card">
+    <h3>📁 Fichiers</h3>
+    <button onclick="mkdir()">Créer logs</button>
+    <button onclick="listdir()">Lister /home/pi/tshakongo</button>
+    <pre id="fsout"></pre>
+  </div>
+
+  <script>
+    async function mkdir(){ const r=await fetch("/api/fs/mkdir",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({path:"/home/pi/tshakongo/logs"})}); document.getElementById("fsout").textContent=(await r.json()).msg; }
+    async function listdir(){ const r=await fetch("/api/fs/list",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({path:"/home/pi/tshakongo"})}); document.getElementById("fsout").textContent=(await r.json()).msg; }
+    async function update(){ const r=await fetch("/api/update",{method:"POST"}); document.getElementById("updout").textContent=(await r.json()).msg; }
+    async function talk(){ const txt=document.getElementById("dlg").value; const r=await fetch("/api/dialogue",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({text:txt})}); const j=await r.json(); document.getElementById("dlgout").textContent=j.reply; }
+    async function createScript(){ const code="print('Hello from demo.py')\n"; const r=await fetch("/api/scripts/create",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({name:"demo.py",content:code})}); document.getElementById("scriptout").textContent=(await r.json()).msg; }
+    async function runScript(){ const r=await fetch("/api/scripts/run",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({name:"demo.py"})}); const j=await r.json(); document.getElementById("scriptout").textContent=(j.ok?"OK\n":"ERREUR\n")+j.out; }
+    async function listScripts(){ const r=await fetch("/api/scripts/list"); const j=await r.json(); document.getElementById("scriptout").textContent=j.scripts.join("\n"); }
+    async function addEvery(){ const r=await fetch("/api/schedule/minutes",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({id:"job1",minutes:5})}); document.getElementById("jobsout").textContent=(await r.json()).msg; }
+    async function listJobs(){ const r=await fetch("/api/schedule/list"); const j=await r.json(); document.getElementById("jobsout").textContent=j.jobs.join("\n"); }
+    async function remJob(){ const r=await fetch("/api/schedule/remove",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({id:"job1"})}); document.getElementById("jobsout").textContent=(await r.json()).msg; }
+    async function voiceOn(){ const r=await fetch("/api/voice/start",{method:"POST"}); document.getElementById("voiceout").textContent=(await r.json()).msg; }
+    async function voiceOff(){ const r=await fetch("/api/voice/stop",{method:"POST"}); document.getElementById("voiceout").textContent=(await r.json()).msg; }
+    async function visionToggle(){ const r=await fetch("/api/vision/toggle",{method:"POST",headers:{"Content-Type":"application/json"},body: JSON.stringify({})}); const j=await r.json(); document.getElementById("visionout").textContent="Vision: "+(j.enabled?"ON":"OFF"); }
+    async function navOn(){ const r=await fetch("/api/nav/autonomous/start",{method:"POST"}); document.getElementById("navout").textContent=(await r.json()).msg; }
+    async function navOff(){ const r=await fetch("/api/nav/autonomous/stop",{method:"POST"}); document.getElementById("navout").textContent=(await r.json()).msg; }
+    setInterval(async()=>{ try{ const r=await fetch("/api/lidar/min"); const j=await r.json(); document.getElementById("lidar").textContent="Distance min: "+(j.min?.toFixed? j.min.toFixed(2): j.min)+" m"; }catch(e){} }, 1500);
+  </script>
+</body>
+</html>

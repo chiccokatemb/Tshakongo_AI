@@ -1,0 +1,14 @@
+
+[Unit]
+Description=Tshakongo_AI
+After=network-online.target
+
+[Service]
+User=pi
+WorkingDirectory=/home/pi/Tshakongo_AI/app
+Environment="PYTHONUNBUFFERED=1"
+ExecStart=/usr/bin/python3 app.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
